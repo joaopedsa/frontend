@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import twitterLogo from '../twitter.svg';
 import Tweet from '../components/Tweet';
 import socket from 'socket.io-client'
+import { deleteToken } from '../services/auth';
 
 import './Timeline.css';
 
@@ -11,17 +12,25 @@ export default class Timeline extends Component {
 
     state = {
         tweets: [],
-        newTweet : ''
+        newTweet: '',
+        username: ''
     }
     
     async componentDidMount() {
         this.subscribeToEvents();
-
-        if(!localStorage.getItem('username'))
+        if(!localStorage.getItem('token'))
             return this.props.history.push('/')
-        const response = await api.get('/tweets')
-
-        this.setState({ tweets: response.data})
+        try {
+            if(this.state.username.length === 0) {
+                const user = await api.get('/user')
+                this.setState({ username: user.data.username})
+            }
+            const response = await api.get('/tweets')
+            this.setState({ tweets: response.data });
+        } catch(err) {
+            deleteToken();
+            return this.props.history.push('/');
+        }
     }
 
     subscribeToEvents = () => {
@@ -40,19 +49,17 @@ export default class Timeline extends Component {
     }
 
     handleNewTweet = async (e) => {
-        if(!localStorage.getItem('username'))
-            return this.props.history.push('/')
-
         if(e.keyCode !== 13) return;
 
         const content = this.state.newTweet;
 
-        const author = localStorage.getItem('username')
-
-        await api.post('tweets', { content, author} )
-
+        try {
+            await api.post('tweets', { content, author: this.state.username} )
+        } catch(err) {
+            deleteToken();
+            return this.props.history.push('/');
+        }
         this.setState({ newTweet: ''})
-
     }
 
     handleInputChanges = (e) => {

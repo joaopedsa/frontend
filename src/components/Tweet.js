@@ -8,8 +8,7 @@ import like from '../like.svg';
 export default class Tweet extends Component {
   
     handleLike = () => {
-        const response = api.post(`/like/${this.props.tweet._id}`)
-        console.log(response);
+        api.post(`/like/${this.props.tweet._id}`)
     }
   
     render() {
