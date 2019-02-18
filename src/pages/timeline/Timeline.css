@@ -7,6 +7,26 @@
   align-items: stretch;
 }
 
+.containerDados {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #4bb0ee;
+  background: whitesmoke;
+  position: fixed;
+  width: 100%;
+  top:0;
+  padding: 5px;
+}
+
+.containerDados div button {
+  border: none;
+  font-size: 1em;
+  outline: none;
+  padding: 5px;
+  border-radius: 5px;
+}
+
 .timeline-wrapper form {
   width: 100%;
   background: #e9f1f6;

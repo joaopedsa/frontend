@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import twitterLogo from '../twitter.svg';
-import Tweet from '../components/Tweet';
+import Tweet from '../../components/Tweet';
 import socket from 'socket.io-client'
-import { deleteToken } from '../services/auth';
+import { deleteToken } from '../../services/auth';
 
 import './Timeline.css';
 
-import api from '../services/api';
+import api from '../../services/api';
 
 export default class Timeline extends Component {
 
@@ -72,21 +71,31 @@ export default class Timeline extends Component {
 
     render() {
         return (
-            <div className="timeline-wrapper">
-                <img src={twitterLogo} alt="logo"></img>
-                <form onSubmit={this.handleSubmit}>
-                    <textarea
-                    placeholder="O que esta Acontecendo??"
-                    value = {this.state.newTweet}
-                    onChange = {this.handleInputChanges}
-                    onKeyDown={this.handleNewTweet}           
-                    />
-                </form>
-                <ul className="tweet-list">
-                    {this.state.tweets.map(tweet => (
-                        <Tweet key={tweet._id} tweet={tweet}/>
-                    ))}
-                </ul>
+            <div>
+                <div className="containerDados">
+                    <div>
+                        <img alt="foto"></img>
+                        <p>{this.state.username}</p>
+                    </div>
+                    <div>
+                        <button>Logout</button>
+                    </div>
+                </div>
+                <div className="timeline-wrapper">
+                    <form onSubmit={this.handleSubmit}>
+                        <textarea
+                        placeholder="O que esta Acontecendo??"
+                        value = {this.state.newTweet}
+                        onChange = {this.handleInputChanges}
+                        onKeyDown={this.handleNewTweet}           
+                        />
+                    </form>
+                    <ul className="tweet-list">
+                        {this.state.tweets.map(tweet => (
+                            <Tweet key={tweet._id} tweet={tweet}/>
+                        ))}
+                    </ul>
+                </div>
             </div>
         );
     }

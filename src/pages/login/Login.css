@@ -10,11 +10,19 @@
 .login-wrapper form {
   margin: 20px 0 0;
   width: 100%;
-  max-width: 280px;
+  max-width: 320px;
 
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  border: 1px solid #4bb0ee;
+  border-radius: 15px;
+  padding: 40px;
+  padding-right: 25px;
+  padding-left: 25px;
+}
+.login-wrapper form img{
+  margin-bottom: 25px;
 }
 
 .login-wrapper form input {
@@ -41,4 +49,9 @@
 
 .login-wrapper form button:hover {
   background: #42a1db;
+}
+.login-wrapper form a {
+  margin-top: 15px;
+  color: #4bb0ee;
+  text-align: center;
 }
