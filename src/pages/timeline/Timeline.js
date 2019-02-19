@@ -1,73 +1,42 @@
 import React, { Component } from 'react';
 import Tweet from '../../components/Tweet';
+import { connect } from 'react-redux';
+import { handleTweet, handlePostTweets, getTweets, newTweet, addLike } from '../../actions/timelineActions';
+import { changeUsername } from '../../actions/loginActions';
 import socket from 'socket.io-client'
-import { deleteToken } from '../../services/auth';
 
-import './Timeline.css';
+import { deleteToken } from '../../services/auth';
 
 import api from '../../services/api';
 
-export default class Timeline extends Component {
+import './Timeline.css';
 
-    state = {
-        tweets: [],
-        newTweet: '',
-        username: ''
-    }
-    
+class Timeline extends Component {
+
     async componentDidMount() {
-        this.subscribeToEvents();
+        this.subscribeToEvents()
         if(!localStorage.getItem('token'))
             return this.props.history.push('/')
         try {
-            if(this.state.username.length === 0) {
+            if(this.props.username.length === 0) {
                 const user = await api.get('/user')
-                this.setState({ username: user.data.username})
+                this.props.changeUsername(user.data.username)
             }
-            const response = await api.get('/tweets')
-            this.setState({ tweets: response.data });
-        } catch(err) {
+        } catch (err) {
             deleteToken();
-            return this.props.history.push('/');
+            return this.props.history.push('/')
         }
+        this.props.getTweets();
     }
 
     subscribeToEvents = () => {
         const io = socket('http://localhost:8000');
-
-        io.on('tweet', data => {
-            this.setState({ tweets: [data, ...this.state.tweets]})
-        })
-
-        io.on('like', data => {
-            this.setState({ tweets: this.state.tweets.map(tweet => 
-                    tweet._id === data._id ? data : tweet
-                )
-            })
-        })
+    
+        io.on('tweet', data => this.props.newTweet(data))
+    
+        io.on('like', data => this.props.addLike(data,this.props.tweets))
     }
 
-    handleNewTweet = async (e) => {
-        if(e.keyCode !== 13) return;
-
-        const content = this.state.newTweet;
-
-        try {
-            await api.post('tweets', { content, author: this.state.username} )
-        } catch(err) {
-            deleteToken();
-            return this.props.history.push('/');
-        }
-        this.setState({ newTweet: ''})
-    }
-
-    handleInputChanges = (e) => {
-        this.setState({ newTweet: e.target.value})
-    }
-
-    handleSubmit = () => {
-        
-    }
 
     render() {
         return (
@@ -75,23 +44,22 @@ export default class Timeline extends Component {
                 <div className="containerDados">
                     <div>
                         <img alt="foto"></img>
-                        <p>{this.state.username}</p>
+                        <p>{this.props.username}</p>
                     </div>
                     <div>
                         <button>Logout</button>
                     </div>
                 </div>
                 <div className="timeline-wrapper">
-                    <form onSubmit={this.handleSubmit}>
-                        <textarea
+                    <form onSubmit={e => this.props.handlePostTweets(e,this.props)}>
+                        <input
                         placeholder="O que esta Acontecendo??"
-                        value = {this.state.newTweet}
-                        onChange = {this.handleInputChanges}
-                        onKeyDown={this.handleNewTweet}           
+                        value = {this.props.newtweet}
+                        onChange = {e => this.props.handleTweet(e.target.value)}
                         />
                     </form>
                     <ul className="tweet-list">
-                        {this.state.tweets.map(tweet => (
+                        {this.props.tweets.map(tweet => (
                             <Tweet key={tweet._id} tweet={tweet}/>
                         ))}
                     </ul>
@@ -100,3 +68,11 @@ export default class Timeline extends Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    tweets: state.tweetProps.tweets,
+    newtweet: state.tweetProps.newtweet,
+    username: state.userProps.username
+})
+
+export default connect(mapStateToProps, { handleTweet, handlePostTweets, getTweets, newTweet, addLike, changeUsername })(Timeline);

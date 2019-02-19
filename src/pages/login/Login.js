@@ -1,54 +1,32 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { changeUsername, changePassword } from '../../actions/loginActions';
-import { setToken } from '../../services/auth'
-import api from '../../services/api';
+import { changeUsername, changePassword, handleLogin } from '../../actions/loginActions';
+
+import { withRouter } from 'react-router-dom';
 
 
 import './Login.css';
 
 
 class Login extends Component {
-
-    handleSubmit = async (e) => {
-        e.preventDefault();
-        const { username, password } = this.props.loginReducer;
-
-        if(!username.length && !password.length) {
-            alert("Insira seus dados!");
-            return;
-        }
-
-        try {
-            const body = await api.post('/login',{username,password});
-            setToken(body.data.token);
-            this.props.history.push('/timeline')
-        } catch(err) {
-            if(err.response.status === 400)
-                return alert("Senha Inválida")
-            alert('Usuario não cadastrado')
-        }
-    }
-    
     componentDidMount() {
         if(localStorage.getItem('token'))
             this.props.history.push('/timeline')
     }
 
     render() {
-        const {dispatch} = this.props
         return (
             <div className="login-wrapper">
-                <form onSubmit={e => this.handleSubmit(e)}>
+                <form onSubmit={e => this.props.handleLogin(e, this.props)}>
                     <input 
                         placeholder="Nome do Usuário" 
                         value={this.props.username}
-                        onChange={e => dispatch(changeUsername(e.target.value))}
+                        onChange={e => this.props.changeUsername(e.target.value)}
                     />
                     <input 
                         placeholder="Senha do Usuario" 
                         value={this.props.password}
-                        onChange={e => dispatch(changePassword(e.target.value))}
+                        onChange={e => this.props.changePassword(e.target.value)}
                         type="password"
                     />
                     <button type="submit">Entrar</button>
@@ -58,6 +36,11 @@ class Login extends Component {
         )
     }
 }
-const mapStateToProps = state => ({...state})
+const mapStateToProps = (state) => {
+    return {
+        username: state.userProps.username,
+        password: state.userProps.password
+    }
+}
 
-export default connect(mapStateToProps)(Login);
+export default withRouter(connect(mapStateToProps,{ changeUsername, changePassword, handleLogin } )(Login));

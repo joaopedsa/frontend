@@ -4,22 +4,21 @@ import api from '../services/api';
 // action creator
 export const changeUsername = (username) => {
     return {
-        type: 'USERNAME_INPUT',
+        type: 'CHANGE_USERNAME',
         payload: username
     };
 };
 
 export const changePassword = (password) => {
     return {
-        type: 'PASSWORD_INPUT',
+        type: 'CHANGE_PASSWORD',
         payload: password
     };
 };
 
-export const handleLogin = (e,props) => async dispatch => {
+export const handleRegister = async (e, props) => {
     e.preventDefault();
-
-    const { username, password, history } = props
+    const { username, password } = props.userReducer;
 
     if(!username.length && !password.length) {
         alert("Insira seus dados!");
@@ -27,15 +26,10 @@ export const handleLogin = (e,props) => async dispatch => {
     }
 
     try {
-        const body = await api.post('/login',{username,password});
+        const body = await api.post('/register',{username,password});
         setToken(body.data.token);
-        history.push('/timeline')
-        dispatch({
-            type: 'LOGIN_CLICK'
-        })
+        props.history.push('/timeline')
     } catch(err) {
-        if(err.response.status === 400)
-            alert('senha invalida')
-        alert('usuario não cadastrado')
+        alert('Usuário Existente!')
     }
 }
