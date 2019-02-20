@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Tweet from '../../components/Tweet';
 import { connect } from 'react-redux';
 import { handleTweet, handlePostTweets, getTweets, newTweet, addLike } from '../../actions/timelineActions';
-import { changeUsername } from '../../actions/loginActions';
+import { changeUsername, changePassword } from '../../actions/loginActions';
 import socket from 'socket.io-client'
 
 import { deleteToken } from '../../services/auth';
@@ -37,6 +37,12 @@ class Timeline extends Component {
         io.on('like', data => this.props.addLike(data,this.props.tweets))
     }
 
+    logout = () => {
+        this.props.changePassword('')
+        this.props.changeUsername('')
+        localStorage.removeItem('token')
+        this.props.history.push('/')
+    }
 
     render() {
         return (
@@ -47,7 +53,7 @@ class Timeline extends Component {
                         <p>{this.props.username}</p>
                     </div>
                     <div>
-                        <button>Logout</button>
+                        <button onClick={this.logout}>Logout</button>
                     </div>
                 </div>
                 <div className="timeline-wrapper">
@@ -75,4 +81,4 @@ const mapStateToProps = state => ({
     username: state.userProps.username
 })
 
-export default connect(mapStateToProps, { handleTweet, handlePostTweets, getTweets, newTweet, addLike, changeUsername })(Timeline);
+export default connect(mapStateToProps, { handleTweet, handlePostTweets, getTweets, newTweet, addLike, changeUsername, changePassword })(Timeline);
